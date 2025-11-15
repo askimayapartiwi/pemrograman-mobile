@@ -1,0 +1,28 @@
+name: flutter_campus_feedback
+description: "Aplikasi Kuesioner Kepuasan Mahasiswa terhadap Fasilitas dan Layanan Kampus."
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.9.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+  
+  # Ikon gaya iOS (opsional)
+  cupertino_icons: ^1.0.8
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
+
+  # Daftar asset gambar yang digunakan di aplikasi
+  assets:
+    - assets/flutter_logo.png
+    - assets/uin_logo.png

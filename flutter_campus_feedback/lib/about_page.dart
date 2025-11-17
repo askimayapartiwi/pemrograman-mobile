@@ -6,124 +6,149 @@ class AboutPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF4F8FF),
       appBar: AppBar(
         title: const Text('Tentang Aplikasi'),
-        centerTitle: true,
-        backgroundColor: Colors.blue.shade700,
-        elevation: 3,
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              // Logo kampus
-              CircleAvatar(
-                radius: 55,
-                backgroundColor: Colors.white,
-                backgroundImage: const AssetImage('assets/images/uin_logo.png'),
-              ),
-              const SizedBox(height: 20),
-
-              const Text(
-                'Aplikasi Campus Feedback',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF1E3A8A),
-                ),
-              ),
-              const SizedBox(height: 10),
-
-              const Text(
-                'Dikembangkan untuk mempermudah mahasiswa dalam memberikan umpan balik terhadap fasilitas kampus secara digital dan efisien.',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 15, color: Colors.black54, height: 1.5),
-              ),
-
-              const SizedBox(height: 25),
-
-              Card(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16)),
-                elevation: 4,
-                child: Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: const [
-                      Text(
-                        '📚 Mata Kuliah: Rekayasa Perangkat Lunak',
-                        style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.black87,
-                            fontWeight: FontWeight.w600),
-                      ),
-                      SizedBox(height: 6),
-                      Text(
-                        '👨‍🏫 Dosen Pengampu: Bapak/Ibu [Nama Dosen]',
-                        style:
-                            TextStyle(fontSize: 15, color: Colors.black54),
-                      ),
-                      SizedBox(height: 6),
-                      Text(
-                        '🏫 Program Studi: Sistem Informasi',
-                        style:
-                            TextStyle(fontSize: 15, color: Colors.black54),
-                      ),
-                    ],
+      body: Container(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            // Logo UIN STS Jambi - DENGAN FOTO
+            Image.asset(
+              'assets/images/uin_logo.png',
+              height: 120,
+              width: 120,
+              errorBuilder: (context, error, stackTrace) {
+                // Fallback jika gambar tidak ditemukan
+                return Container(
+                  width: 120,
+                  height: 120,
+                  decoration: BoxDecoration(
+                    color: Colors.blue,
+                    borderRadius: BorderRadius.circular(60),
                   ),
-                ),
-              ),
-
-              const SizedBox(height: 25),
-
-              Card(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16)),
-                color: Colors.blue.shade50,
-                elevation: 3,
-                child: Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
-                  child: Column(
-                    children: const [
-                      Text(
-                        '👩‍💻 Pengembang:',
-                        style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF1E3A8A)),
-                      ),
-                      SizedBox(height: 8),
-                      Text(
-                        'Aski Ramadhani\nMahasiswa Sistem Informasi\nUIN Sulthan Thaha Saifuddin Jambi',
-                        textAlign: TextAlign.center,
-                        style:
-                            TextStyle(fontSize: 15, color: Colors.black87),
-                      ),
-                    ],
+                  child: const Icon(
+                    Icons.school,
+                    size: 60,
+                    color: Colors.white,
                   ),
+                );
+              },
+            ),
+            
+            const SizedBox(height: 30),
+            
+            // Informasi Aplikasi
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  children: [
+                    const Text(
+                      'Campus Feedback',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.blue,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    const Text(
+                      'Aplikasi Kuesioner Kepuasan Mahasiswa terhadap Fasilitas dan Layanan Kampus',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.grey,
+                      ),
+                    ),
+                    
+                    const SizedBox(height: 20),
+                    
+                    const Divider(),
+                    
+                    const SizedBox(height: 15),
+                    
+                    // Informasi Dosen
+                    _buildInfoRow(
+                      'Dosen Pengampu:',
+                      'Ahmad Nasukha, S.Hum., M.S.I',
+                    ),
+                    
+                    const SizedBox(height: 10),
+                    
+                    _buildInfoRow(
+                      'Mata Kuliah:',
+                      'Pemrograman Mobile',
+                    ),
+                    
+                    const SizedBox(height: 10),
+                    
+                    _buildInfoRow(
+                      'Nama Pengembang:',
+                      'Aski Maya Partiwi', 
+                    ),
+                    
+                    const SizedBox(height: 10),
+                    
+                    _buildInfoRow(
+                      'NIM:',
+                      '701230027', 
+                    ),
+                    
+                    const SizedBox(height: 10),
+                    
+                    _buildInfoRow(
+                      'Tahun Akademik:',
+                      '2024/2025',
+                    ),
+                    
+                    const SizedBox(height: 10),
+                    
+                    _buildInfoRow(
+                      'Semester:',
+                      '5',
+                    ),
+                  ],
                 ),
               ),
-
-              const SizedBox(height: 30),
-
-              Text(
-                '© 2025 UIN STS Jambi - All Rights Reserved',
-                style: TextStyle(
-                  color: Colors.grey.shade600,
-                  fontSize: 13,
+            ),
+            
+            const Spacer(),
+            
+            // Tombol Kembali
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
+                child: const Text('Kembali ke Beranda'),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
+    );
+  }
+  
+  Widget _buildInfoRow(String label, String value) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          width: 150,
+          child: Text(
+            label,
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
+        ),
+        Expanded(child: Text(value)),
+      ],
     );
   }
 }

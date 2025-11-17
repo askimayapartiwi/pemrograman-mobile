@@ -1,42 +1,67 @@
 import 'package:flutter/material.dart';
 import 'home_page.dart';
+import 'shared_preferences_service.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await SharedPreferencesService.init();
   runApp(const CampusFeedbackApp());
 }
 
-class CampusFeedbackApp extends StatelessWidget {
+class CampusFeedbackApp extends StatefulWidget {
   const CampusFeedbackApp({super.key});
+
+  @override
+  State<CampusFeedbackApp> createState() => _CampusFeedbackAppState();
+}
+
+class _CampusFeedbackAppState extends State<CampusFeedbackApp> {
+  bool _isDarkMode = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadTheme();
+  }
+
+  void _loadTheme() async {
+    bool isDark = await SharedPreferencesService.isDarkMode();
+    setState(() {
+      _isDarkMode = isDark;
+    });
+  }
+
+  void _toggleDarkMode(bool value) {
+    setState(() {
+      _isDarkMode = value;
+    });
+    SharedPreferencesService.setDarkMode(value);
+  }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Campus Feedback',
-      debugShowCheckedModeBanner: false,
+      title: 'Campus Feedback',
       theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.blue,
+          brightness: Brightness.light,
+        ),
         useMaterial3: true,
-        colorSchemeSeed: Colors.blue.shade700,
-        brightness: Brightness.light,
-        scaffoldBackgroundColor: const Color(0xFFF4F8FF),
-        appBarTheme: AppBarTheme(
-          backgroundColor: Colors.blue.shade700,
-          foregroundColor: Colors.white,
-          centerTitle: true,
-        ),
-        elevatedButtonTheme: ElevatedButtonThemeData(
-          style: ElevatedButton.styleFrom(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(14),
-            ),
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-            textStyle: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ),
       ),
-      home: const HomePage(), // Halaman pertama yang muncul
+      darkTheme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.blue,
+          brightness: Brightness.dark,
+        ),
+        useMaterial3: true,
+      ),
+      themeMode: _isDarkMode ? ThemeMode.dark : ThemeMode.light,
+      home: HomePage(
+        isDarkMode: _isDarkMode,
+        onThemeChanged: _toggleDarkMode,
+      ),
+      debugShowCheckedModeBanner: false,
     );
   }
 }

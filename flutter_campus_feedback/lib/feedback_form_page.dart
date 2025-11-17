@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'feedback_list_page.dart';
 import 'model/feedback_item.dart';
 
 class FeedbackFormPage extends StatefulWidget {
@@ -10,106 +11,343 @@ class FeedbackFormPage extends StatefulWidget {
 
 class _FeedbackFormPageState extends State<FeedbackFormPage> {
   final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController();
-  final _nimController = TextEditingController();
-  final _facultyController = TextEditingController();
-  final _messageController = TextEditingController();
-  String _feedbackType = 'Apresiasi';
-  double _satisfaction = 3.0;
-  bool _isAgreed = false;
-  List<String> _selectedFacilities = [];
+  
+  // Form controllers
+  final TextEditingController _namaController = TextEditingController();
+  final TextEditingController _nimController = TextEditingController();
+  final TextEditingController _pesanController = TextEditingController();
+  
+  // Form state
+  String _fakultas = 'Fakultas Sains dan Teknologi';
+  final List<String> _fasilitas = [];
+  double _nilaiKepuasan = 3.0;
+  String _jenisFeedback = 'Saran';
+  bool _setujuSyarat = false;
+  
+  // List fakultas
+  final List<String> _listFakultas = [
+    'Fakultas Ilmu Tarbiyah dan Keguruan',
+    'Fakultas Syariah',
+    'Fakultas Ushuluddin dan Studi Agama',
+    'Fakultas Adab dan Humaniora',
+    'Fakultas Ekonomi dan Bisnis Islam',
+    'Fakultas Sains dan Teknologi',
+    'Fakultas Dakwah',
+    'Fakultas Kedokteran',
+  ];
+  
+  // List fasilitas
+  final List<String> _listFasilitas = [
+    'Perpustakaan',
+    'Laboratorium',
+    'Ruang Kelas',
+    'Wi-Fi Kampus',
+    'Kantin',
+    'Parkir',
+    'Olahraga',
+    'Layanan Administrasi',
+  ];
+
+  void _simpanFeedback() {
+    if (_formKey.currentState!.validate()) {
+      if (!_setujuSyarat) {
+        _showKonfirmasiDialog();
+        return;
+      }
+      
+      if (_fasilitas.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Pilih minimal satu fasilitas yang dinilai!'),
+            backgroundColor: Colors.orange,
+          ),
+        );
+        return;
+      }
+      
+      // Buat feedback item
+      final feedbackItem = FeedbackItem(
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        nama: _namaController.text,
+        nim: _nimController.text,
+        fakultas: _fakultas,
+        fasilitas: _fasilitas,
+        nilaiKepuasan: _nilaiKepuasan,
+        jenisFeedback: _jenisFeedback,
+        pesanTambahan: _pesanController.text,
+        setujuSyarat: _setujuSyarat,
+        tanggal: DateTime.now(),
+      );
+      
+      // Navigasi ke halaman list dengan CLEAR STACK
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(
+          builder: (context) => FeedbackListPage(feedbackItem: feedbackItem),
+        ),
+        (route) => false,
+      );
+      
+      // Show success snackbar
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Feedback berhasil disimpan!'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    }
+  }
+  
+  void _showKonfirmasiDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Konfirmasi'),
+          content: const Text('Anda harus menyetujui syarat dan ketentuan sebelum menyimpan feedback.'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Form Feedback Mahasiswa'),
-        backgroundColor: Colors.blue.shade700,
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Form(
           key: _formKey,
-          child: ListView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Nama Mahasiswa
               TextFormField(
-                controller: _nameController,
-                decoration: const InputDecoration(labelText: 'Nama Lengkap'),
-                validator: (value) =>
-                    value!.isEmpty ? 'Nama tidak boleh kosong' : null,
+                controller: _namaController,
+                decoration: const InputDecoration(
+                  labelText: 'Nama Mahasiswa',
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.person),
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Nama mahasiswa wajib diisi';
+                  }
+                  return null;
+                },
               ),
+              
+              const SizedBox(height: 16),
+              
+              // NIM
               TextFormField(
                 controller: _nimController,
-                decoration: const InputDecoration(labelText: 'NIM'),
-                validator: (value) =>
-                    value!.isEmpty ? 'NIM tidak boleh kosong' : null,
+                decoration: const InputDecoration(
+                  labelText: 'NIM',
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.badge),
+                ),
+                keyboardType: TextInputType.number,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'NIM wajib diisi';
+                  }
+                  if (!RegExp(r'^[0-9]+$').hasMatch(value)) {
+                    return 'NIM harus berupa angka';
+                  }
+                  return null;
+                },
               ),
-              TextFormField(
-                controller: _facultyController,
-                decoration: const InputDecoration(labelText: 'Fakultas'),
-                validator: (value) =>
-                    value!.isEmpty ? 'Fakultas tidak boleh kosong' : null,
-              ),
-              const SizedBox(height: 10),
-              const Text('Jenis Feedback:'),
-              DropdownButtonFormField<String>(
-                value: _feedbackType,
-                items: const [
-                  DropdownMenuItem(value: 'Apresiasi', child: Text('Apresiasi')),
-                  DropdownMenuItem(value: 'Keluhan', child: Text('Keluhan')),
-                  DropdownMenuItem(value: 'Saran', child: Text('Saran')),
-                ],
-                onChanged: (value) => setState(() => _feedbackType = value!),
-              ),
+              
               const SizedBox(height: 16),
-              const Text('Tingkat Kepuasan:'),
+              
+              // Fakultas
+              DropdownButtonFormField<String>(
+                value: _fakultas,
+                decoration: const InputDecoration(
+                  labelText: 'Fakultas',
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.school),
+                ),
+                items: _listFakultas.map((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
+                onChanged: (String? newValue) {
+                  setState(() {
+                    _fakultas = newValue!;
+                  });
+                },
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Pilih fakultas';
+                  }
+                  return null;
+                },
+              ),
+              
+              const SizedBox(height: 16),
+              
+              // Fasilitas yang Dinilai
+              const Text(
+                'Fasilitas yang Dinilai:',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
+              ..._listFasilitas.map((fasilitas) {
+                return CheckboxListTile(
+                  title: Text(fasilitas),
+                  value: _fasilitas.contains(fasilitas),
+                  onChanged: (bool? value) {
+                    setState(() {
+                      if (value!) {
+                        _fasilitas.add(fasilitas);
+                      } else {
+                        _fasilitas.remove(fasilitas);
+                      }
+                    });
+                  },
+                );
+              }),
+              
+              const SizedBox(height: 16),
+              
+              // Nilai Kepuasan
+              Text(
+                'Nilai Kepuasan: ${_nilaiKepuasan.toStringAsFixed(1)}',
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
               Slider(
-                value: _satisfaction,
+                value: _nilaiKepuasan,
                 min: 1,
                 max: 5,
                 divisions: 4,
-                label: _satisfaction.toString(),
-                onChanged: (value) => setState(() => _satisfaction = value),
+                label: _nilaiKepuasan.toStringAsFixed(1),
+                onChanged: (double value) {
+                  setState(() {
+                    _nilaiKepuasan = value;
+                  });
+                },
               ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: const [
+                  Text('1 (Sangat Buruk)'),
+                  Text('5 (Sangat Baik)'),
+                ],
+              ),
+              
               const SizedBox(height: 16),
-              const Text('Pesan Tambahan:'),
+              
+              // Jenis Feedback
+              const Text(
+                'Jenis Feedback:',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
+              Column(
+                children: [
+                  RadioListTile<String>(
+                    title: const Text('Saran'),
+                    value: 'Saran',
+                    groupValue: _jenisFeedback,
+                    onChanged: (String? value) {
+                      setState(() {
+                        _jenisFeedback = value!;
+                      });
+                    },
+                  ),
+                  RadioListTile<String>(
+                    title: const Text('Keluhan'),
+                    value: 'Keluhan',
+                    groupValue: _jenisFeedback,
+                    onChanged: (String? value) {
+                      setState(() {
+                        _jenisFeedback = value!;
+                      });
+                    },
+                  ),
+                  RadioListTile<String>(
+                    title: const Text('Apresiasi'),
+                    value: 'Apresiasi',
+                    groupValue: _jenisFeedback,
+                    onChanged: (String? value) {
+                      setState(() {
+                        _jenisFeedback = value!;
+                      });
+                    },
+                  ),
+                ],
+              ),
+              
+              const SizedBox(height: 16),
+              
+              // Pesan Tambahan
               TextFormField(
-                controller: _messageController,
+                controller: _pesanController,
+                decoration: const InputDecoration(
+                  labelText: 'Pesan Tambahan',
+                  border: OutlineInputBorder(),
+                  hintText: 'Masukkan saran, keluhan, atau apresiasi Anda...',
+                ),
                 maxLines: 3,
               ),
-              CheckboxListTile(
-                title: const Text('Saya setuju dengan syarat & ketentuan'),
-                value: _isAgreed,
-                onChanged: (val) => setState(() => _isAgreed = val ?? false),
-              ),
+              
               const SizedBox(height: 16),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue.shade700,
-                ),
-                onPressed: () {
-                  if (_formKey.currentState!.validate()) {
-                    final feedbackItem = FeedbackItem(
-                      name: _nameController.text,
-                      nim: _nimController.text,
-                      faculty: _facultyController.text,
-                      facilities: _selectedFacilities,
-                      satisfaction: _satisfaction,
-                      feedbackType: _feedbackType,
-                      isAgreed: _isAgreed,
-                      additionalMessage: _messageController.text,
-                    );
-
-                    // Kirim balik data ke halaman sebelumnya
-                    Navigator.pop(context, feedbackItem);
-                  }
+              
+              // Setuju Syarat & Ketentuan
+              SwitchListTile(
+                title: const Text('Saya Menyetujui Syarat dan Ketentuan'),
+                value: _setujuSyarat,
+                onChanged: (bool value) {
+                  setState(() {
+                    _setujuSyarat = value;
+                  });
                 },
-                child: const Text('Simpan Feedback'),
+              ),
+              
+              const SizedBox(height: 24),
+              
+              // Tombol Simpan
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: _simpanFeedback,
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                  ),
+                  child: const Text(
+                    'Simpan Feedback',
+                    style: TextStyle(fontSize: 16),
+                  ),
+                ),
               ),
             ],
           ),
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _namaController.dispose();
+    _nimController.dispose();
+    _pesanController.dispose();
+    super.dispose();
   }
 }

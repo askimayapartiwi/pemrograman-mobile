@@ -12,7 +12,6 @@ class HomePage extends StatelessWidget {
     required this.isDarkMode,
     required this.onThemeChanged,
   });
-
   // ✅ ANIMASI SLIDE FROM RIGHT
   void _navigateWithSlideAnimation(BuildContext context, Widget page) {
     Navigator.push(
@@ -34,7 +33,6 @@ class HomePage extends StatelessWidget {
       ),
     );
   }
-
   // ✅ ANIMASI FADE
   void _navigateWithFadeAnimation(BuildContext context, Widget page) {
     Navigator.push(
@@ -51,7 +49,6 @@ class HomePage extends StatelessWidget {
       ),
     );
   }
-
   // ✅ ANIMASI SCALE
   void _navigateWithScaleAnimation(BuildContext context, Widget page) {
     Navigator.push(

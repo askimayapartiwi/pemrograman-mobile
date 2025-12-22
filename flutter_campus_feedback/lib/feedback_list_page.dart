@@ -7,7 +7,7 @@ import 'feedback_search_delegate.dart';
 
 class FeedbackListPage extends StatefulWidget {
   final FeedbackItem? feedbackItem;
-  
+
   const FeedbackListPage({super.key, this.feedbackItem});
 
   @override
@@ -30,24 +30,25 @@ class _FeedbackListPageState extends State<FeedbackListPage> {
       _isLoading = true;
     });
 
-    // Load from SharedPreferences
-    final List<Map<String, dynamic>> savedFeedback = await SharedPreferencesService.getFeedbackList();
-    
+    final List<Map<String, dynamic>> savedFeedback =
+        await SharedPreferencesService.getFeedbackList();
+
     setState(() {
-      _feedbackList = savedFeedback.map((data) => FeedbackItem.fromMap(data)).toList();
-      
-      // Add new feedback if provided
+      _feedbackList =
+          savedFeedback.map((data) => FeedbackItem.fromMap(data)).toList();
+
       if (widget.feedbackItem != null) {
         _feedbackList.insert(0, widget.feedbackItem!);
         _saveFeedbackData();
       }
-      
+
       _isLoading = false;
     });
   }
 
   Future<void> _saveFeedbackData() async {
-    final List<Map<String, dynamic>> feedbackMapList = _feedbackList.map((item) => item.toMap()).toList();
+    final List<Map<String, dynamic>> feedbackMapList =
+        _feedbackList.map((item) => item.toMap()).toList();
     await SharedPreferencesService.saveFeedbackList(feedbackMapList);
   }
 
@@ -77,10 +78,9 @@ class _FeedbackListPageState extends State<FeedbackListPage> {
     });
   }
 
-  // ✅ TOMBOL BACK/KELUAR
   Future<bool> _onWillPop() async {
     final now = DateTime.now();
-    if (_lastBackPressTime == null || 
+    if (_lastBackPressTime == null ||
         now.difference(_lastBackPressTime!) > const Duration(seconds: 2)) {
       _lastBackPressTime = now;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -97,35 +97,30 @@ class _FeedbackListPageState extends State<FeedbackListPage> {
   void _showExitDialog() {
     showDialog(
       context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Keluar Aplikasi'),
-          content: const Text('Apakah Anda yakin ingin keluar?'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Batal'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                // Tampilkan pesan keluar
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Gunakan tombol back device untuk keluar'),
-                    duration: Duration(seconds: 2),
-                  ),
-                );
-              },
-              child: const Text('Keluar', style: TextStyle(color: Colors.red)),
-            ),
-          ],
-        );
-      },
+      builder: (_) => AlertDialog(
+        title: const Text('Keluar Aplikasi'),
+        content: const Text('Apakah Anda yakin ingin keluar?'),
+        actions: [
+          TextButton(
+            child: const Text('Batal'),
+            onPressed: () => Navigator.pop(context),
+          ),
+          TextButton(
+            child: const Text('Keluar', style: TextStyle(color: Colors.red)),
+            onPressed: () {
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Gunakan tombol back device untuk keluar'),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
     );
   }
-  
-  // ✅ WARNA IKON 
+
   Color _getIconColor(String jenisFeedback) {
     switch (jenisFeedback) {
       case 'Apresiasi':
@@ -138,7 +133,7 @@ class _FeedbackListPageState extends State<FeedbackListPage> {
         return Colors.grey;
     }
   }
-  
+
   IconData _getIcon(String jenisFeedback) {
     switch (jenisFeedback) {
       case 'Apresiasi':
@@ -160,72 +155,37 @@ class _FeedbackListPageState extends State<FeedbackListPage> {
         appBar: AppBar(
           title: const Text('Daftar Feedback'),
           backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-          // ✅ TAMBAH TOMBOL BACK/KELUAR DI SAMPING TITLE
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
-            onPressed: () {
-              _showExitDialog();
-            },
-            tooltip: 'Keluar Aplikasi',
+            onPressed: _showExitDialog,
           ),
           actions: [
-            // ✅ TOMBOL KELUAR (OPSIONAL)
             IconButton(
               icon: const Icon(Icons.exit_to_app),
               onPressed: _showExitDialog,
-              tooltip: 'Keluar Aplikasi',
             ),
             IconButton(
               icon: const Icon(Icons.search),
               onPressed: _showSearch,
-              tooltip: 'Cari Feedback',
             ),
-            // ✅ TOMBOL REFRESH
             IconButton(
               icon: const Icon(Icons.refresh),
               onPressed: _loadFeedbackData,
-              tooltip: 'Refresh Data',
             ),
           ],
         ),
         body: _isLoading
             ? const Center(child: CircularProgressIndicator())
             : _feedbackList.isEmpty
-                ? Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(Icons.feedback, size: 64, color: Colors.grey),
-                        const SizedBox(height: 16),
-                        const Text(
-                          'Belum ada feedback',
-                          style: TextStyle(fontSize: 18, color: Colors.grey),
-                        ),
-                        const Text(
-                          'Silakan tambah feedback melalui form',
-                          style: TextStyle(fontSize: 14, color: Colors.grey),
-                        ),
-                        const SizedBox(height: 20),
-                        ElevatedButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const FeedbackFormPage(),
-                              ),
-                            );
-                          },
-                          child: const Text('Tambah Feedback'),
-                        ),
-                      ],
-                    ),
-                  )
+                ? _buildEmptyState(context)
                 : ListView.builder(
                     itemCount: _feedbackList.length,
                     itemBuilder: (context, index) {
                       final feedback = _feedbackList[index];
+
                       return Card(
-                        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        margin: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 8),
                         child: ListTile(
                           leading: Icon(
                             _getIcon(feedback.jenisFeedback),
@@ -236,26 +196,30 @@ class _FeedbackListPageState extends State<FeedbackListPage> {
                             feedback.nama,
                             style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
-                          subtitle: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(feedback.fakultas),
-                              Text('Nilai: ${feedback.nilaiKepuasan.toStringAsFixed(1)}'),
-                              Text(
-                                'Jenis: ${feedback.jenisFeedback}',
-                                style: TextStyle(
-                                  color: _getIconColor(feedback.jenisFeedback),
-                                  fontWeight: FontWeight.bold,
+                          subtitle: Flexible(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(feedback.fakultas),
+                                Text(
+                                    'Nilai: ${feedback.nilaiKepuasan.toStringAsFixed(1)}'),
+                                Text(
+                                  'Jenis: ${feedback.jenisFeedback}',
+                                  style: TextStyle(
+                                    color:
+                                        _getIconColor(feedback.jenisFeedback),
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                           trailing: const Icon(Icons.arrow_forward_ios),
                           onTap: () {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => FeedbackDetailPage(
+                                builder: (_) => FeedbackDetailPage(
                                   feedback: feedback,
                                   onDelete: _removeFeedback,
                                 ),
@@ -266,19 +230,47 @@ class _FeedbackListPageState extends State<FeedbackListPage> {
                       );
                     },
                   ),
-        // ✅ FLOATING ACTION BUTTON
         floatingActionButton: FloatingActionButton(
+          child: const Icon(Icons.add),
           onPressed: () {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => const FeedbackFormPage(),
+                builder: (_) => const FeedbackFormPage(),
               ),
             );
           },
-          child: const Icon(Icons.add),
-          tooltip: 'Tambah Feedback Baru',
         ),
+      ),
+    );
+  }
+
+  Widget _buildEmptyState(context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.feedback, size: 64, color: Colors.grey),
+          const SizedBox(height: 16),
+          const Text('Belum ada feedback',
+              style: TextStyle(fontSize: 18, color: Colors.grey)),
+          const Text(
+            'Silakan tambah feedback melalui form',
+            style: TextStyle(fontSize: 14, color: Colors.grey),
+          ),
+          const SizedBox(height: 20),
+          ElevatedButton(
+            child: const Text('Tambah Feedback'),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const FeedbackFormPage(),
+                ),
+              );
+            },
+          )
+        ],
       ),
     );
   }

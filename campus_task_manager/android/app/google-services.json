@@ -1,0 +1,38 @@
+{
+  "project_info": {
+    "project_number": "926441346584",
+    "project_id": "campus-task-manager",
+    "storage_bucket": "campus-task-manager.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:926441346584:android:739899f589fbe9e746556d",
+        "android_client_info": {
+          "package_name": "com.example.campustaskmanager"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "926441346584-739899f589fbe9e746556d.apps.googleusercontent.com",
+          "client_type": 3,
+          "android_info": {
+            "package_name": "com.example.campustaskmanager",
+            "certificate_hash": "A7:2E:1B:3F:8C:CA:44:6A:56:81:5B:D5:7C:50:45:69:7B:2C:17:37"
+          }
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBAOfkzD2Ceqbi7OEX4J9T7FNWH6IWEEjE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
